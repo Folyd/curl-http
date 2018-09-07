@@ -17,6 +17,7 @@ use std::io::{Read, Write};
 /// Shortcut alias for results of this module.
 pub type Result<T> = std::result::Result<T, failure::Error>;
 
+/// A enum represents HTTP methods.
 #[derive(PartialEq, Debug)]
 pub enum Method {
     Get,
@@ -56,6 +57,7 @@ impl Client {
         }
     }
 
+    /// Set the User-Agent header. Default is `curl-http`
     pub fn set_user_agent(&mut self, user_agent: &str) {
         self.user_agent = user_agent.to_string();
     }
@@ -67,27 +69,32 @@ impl Client {
         Request::new(handle, method, &url)?.with_user_agent(&self.user_agent)
     }
 
+    /// High level HTTP **GET** method
     pub fn get(&self, endpoint: &str) -> Result<Response> {
         self.request(Method::Get, endpoint)?.send()
     }
 
+    /// High level HTTP **POST** method
     pub fn post<S: Serialize>(&self, endpoint: &str, body: &S) -> Result<Response> {
         self.request(Method::Post, endpoint)?
             .with_json_body(body)?
             .send()
     }
 
+    /// High level HTTP **PUT** method
     pub fn put<S: Serialize>(&self, endpoint: &str, body: &S) -> Result<Response> {
         self.request(Method::Put, endpoint)?
             .with_json_body(body)?
             .send()
     }
 
+    /// High level HTTP **DELETE** method
     pub fn delete(&self, endpoint: &str) -> Result<Response> {
         self.request(Method::Delete, endpoint)?.send()
     }
 }
 
+/// The struct represents the HTTP request.
 pub struct Request<'a> {
     handle: RefMut<'a, curl::easy::Easy>,
     headers: curl::easy::List,
@@ -121,6 +128,7 @@ impl<'a> Request<'a> {
         })
     }
 
+    /// Set the HTTP header.
     pub fn with_header(mut self, key: &str, value: &str) -> Result<Request<'a>> {
         self.headers.append(&format!("{}: {}", key, value))?;
         Ok(self)
@@ -136,7 +144,7 @@ impl<'a> Request<'a> {
         Ok(self)
     }
 
-    /// sets the JSON request body for the request.
+    /// Set the JSON request body for the request.
     pub fn with_json_body<S: Serialize>(mut self, body: &S) -> Result<Request<'a>> {
         let mut body_bytes: Vec<u8> = vec![];
         // Serialize json object to bytes
@@ -199,8 +207,10 @@ fn handle_request(
     })
 }
 
+/// Type alias for **u32** http status.
 pub type HttpStatus = u32;
 
+/// The struct represents the HTTP response.
 #[derive(Clone, Debug)]
 pub struct Response {
     status: HttpStatus,
