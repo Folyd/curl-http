@@ -49,6 +49,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Initialize a curl http client based on the **base_url**.
     pub fn new(base_url: &str) -> Client {
         Client {
             shared_handle: RefCell::new(curl::easy::Easy::new()),
@@ -62,6 +63,7 @@ impl Client {
         self.user_agent = user_agent.to_string();
     }
 
+    /// Make a specific method request.
     pub fn request(&self, method: Method, endpoint: &str) -> Result<Request> {
         let url = format!("{}{}", self.base_url, endpoint);
         let mut handle = self.shared_handle.borrow_mut();
@@ -134,11 +136,13 @@ impl<'a> Request<'a> {
         Ok(self)
     }
 
+    /// Set custom User-Agent.
     pub fn with_user_agent(mut self, ua: &str) -> Result<Request<'a>> {
         self.headers.append(&format!("User-Agent: {}", ua))?;
         Ok(self)
     }
 
+    /// Set custom url arguments or querystring.
     pub fn with_arguments(mut self, args: &str) -> Result<Request<'a>> {
         self.url = format!("{}?{}", self.url, args);
         Ok(self)
@@ -254,6 +258,7 @@ pub enum ErrorKind {
     InvalidJson,
 }
 
+/// Curl http error.
 #[derive(Debug)]
 pub struct Error {
     inner: Context<ErrorKind>,
