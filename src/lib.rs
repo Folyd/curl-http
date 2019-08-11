@@ -1,18 +1,14 @@
-extern crate curl;
-extern crate failure;
-#[macro_use]
-extern crate failure_derive;
-extern crate serde;
-extern crate serde_json;
-
-// Magic failure::ResultExt which has context method
-// and implements for std::result::Result
-use failure::{Backtrace, Context, Fail, ResultExt};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
 use std::cell::{RefCell, RefMut};
 use std::fmt;
 use std::io::{Read, Write};
+
+use curl;
+// Magic failure::ResultExt which has context method
+// and implements for std::result::Result
+use failure::{self, Backtrace, Context, Fail, ResultExt};
+use serde::{self, Serialize};
+use serde::de::DeserializeOwned;
+use serde_json;
 
 /// Shortcut alias for results of this module.
 pub type Result<T> = std::result::Result<T, failure::Error>;
